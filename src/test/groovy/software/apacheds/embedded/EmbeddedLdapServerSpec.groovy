@@ -19,7 +19,7 @@ package software.apacheds.embedded
 import spock.lang.Shared
 import spock.lang.Specification
 
-class EmbeddedLdapServerIntegrationSpec extends Specification {
+class EmbeddedLdapServerSpec extends Specification {
     @Shared
     EmbeddedLdapServer embeddedLdapServer
 
