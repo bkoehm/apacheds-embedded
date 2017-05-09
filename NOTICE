@@ -1,0 +1,5 @@
+apacheds-embedded
+Copyright 2017 Brian Koehmstedt
+
+This software includes third-party Gradle software (http://www.gradle.org/). 
+Gradle is licensed under the Apache License, Version 2.0.

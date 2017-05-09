@@ -1,0 +1,54 @@
+version "0.1"
+group "software.apacheds.embedded"
+
+apply plugin: "java"
+apply plugin: "groovy"
+apply plugin: "maven-publish"
+
+repositories {
+    mavenLocal()
+    // If using a Maven proxy, put the property settings in
+    // ~/.gradle/gradle.properties for default_proxy_url,
+    // default_proxy_username and default_proxy_password.
+    if (project.hasProperty("default_proxy_url")) {
+        maven {
+            url project.property("default_proxy_url")
+            credentials {
+                username project.property("default_proxy_username")
+                password project.property("default_proxy_password")
+            }
+        }
+    }
+    jcenter()
+    mavenCentral()
+}
+
+
+jar {
+    from { ["LICENSE", "NOTICE"]}
+}
+
+task sourceJar(type: Jar) {
+    from sourceSets.main.allJava
+    from { ["LICENSE", "NOTICE"]}
+}
+
+task javadocJar (type: Jar, dependsOn: javadoc) {
+    from javadoc.destinationDir
+    from { ["LICENSE", "NOTICE"]}
+}
+
+dependencies {
+    compile("org.apache.directory.server:apacheds-all:2.0.0-M23") {
+        exclude group: "org.apache.directory.shared", module: "shared-ldap-schema"
+    }
+    
+    compile "commons-io:commons-io:2.5"
+
+    testCompile "org.codehaus.groovy:groovy-all:2.4.11"
+    testCompile 'org.spockframework:spock-core:1.0-groovy-2.4'
+    testCompile 'junit:junit:4.12'
+    testCompile "org.slf4j:slf4j-api:1.7.25"
+    testRuntime "org.apache.logging.log4j:log4j-core:2.8.2"
+    testRuntime "org.apache.logging.log4j:log4j-slf4j-impl:2.8.2"
+}
