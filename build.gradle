@@ -1,9 +1,38 @@
-version "0.1"
-group "software.apacheds.embedded"
+version projectVersion
+group projectGroup
 
-apply plugin: "java"
+apply plugin: "java-library"
 apply plugin: "groovy"
 apply plugin: "maven-publish"
+apply plugin: "com.jfrog.bintray"
+
+sourceCompatibility = jdkCompatibilityVersion
+targetCompatibility = jdkCompatibilityVersion
+
+buildscript {
+    repositories {
+        mavenLocal()
+        // If using a Maven proxy, put the property settings in
+        // ~/.gradle/gradle.properties for default_proxy_url,
+        // default_proxy_username and default_proxy_password.
+        if (project.hasProperty("default_proxy_url")) {
+            maven {
+                url project.property("default_proxy_url")
+                credentials {
+                    username project.property("default_proxy_username")
+                    password project.property("default_proxy_password")
+                }
+            }
+        }
+        jcenter()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3"
+    }
+}
+
 
 repositories {
     mavenLocal()
@@ -25,17 +54,17 @@ repositories {
 
 
 jar {
-    from { ["LICENSE", "NOTICE"]}
+    from { ["LICENSE", "NOTICE"] }
 }
 
 task sourceJar(type: Jar) {
     from sourceSets.main.allJava
-    from { ["LICENSE", "NOTICE"]}
+    from { ["LICENSE", "NOTICE"] }
 }
 
 task javadocJar (type: Jar, dependsOn: javadoc) {
     from javadoc.destinationDir
-    from { ["LICENSE", "NOTICE"]}
+    from { ["LICENSE", "NOTICE"] }
 }
 
 dependencies {
@@ -51,4 +80,63 @@ dependencies {
     testCompile "org.slf4j:slf4j-api:1.7.25"
     testRuntime "org.apache.logging.log4j:log4j-core:2.8.2"
     testRuntime "org.apache.logging.log4j:log4j-slf4j-impl:2.8.2"
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            artifact sourceJar { classifier "sources" }
+            artifact javadocJar { classifier "javadoc" }
+            pom.withXml {
+                asNode().children().last() + {
+                    resolveStrategy = Closure.DELEGATE_FIRST
+                    name projectName
+                    description projectDescription
+                    url githubWebUrl
+                    scm {
+                        url githubWebUrl
+                        connection "scm:git:${githubWebUrl}.git"
+                        developerConnection "scm:git:${githubWebUrl}.git"
+                    }
+                    licenses {
+                        license {
+                            name 'The Apache Software License, Version 2.0'
+                            url 'http://www.apache.org/license/LICENSE-2.0.txt'
+                            distribution 'repo'
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+if (project.hasProperty('default_bintray_user')) {
+    // deploy with: gradle bintrayUpload
+    bintray {
+        // put in ~/.gradle/gradle.properties
+        user = project.property('default_bintray_user')
+        key = project.property('default_bintray_api_key')
+        publications = ['mavenJava']
+
+        //dryRun = true
+
+        pkg {
+            repo = 'maven'
+            name = projectName
+            desc = projectDescription
+            licenses = ['Apache-2.0']
+            websiteUrl = githubWebUrl
+            vcsUrl = "${githubWebUrl}.git"
+            issueTrackerUrl = '${githubWebUrl}/issues'
+            githubRepo = githubRepo
+            version {
+                name = project.version
+                desc = "${projectName} v${project.version} - ${projectDescription}"
+                released = new Date()
+                vcsTag = "v${project.version}"
+            }
+        }
+    }
 }
