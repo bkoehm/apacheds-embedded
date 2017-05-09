@@ -4,6 +4,10 @@ integration testing.  As such, it starts up with a blank slate and cleans up
 upon shutdown.  This can be disabled, so it's not limited to the testing use
 case.
 
+## License
+
+[Apache License, Version 2.0](LICENSE)
+
 ## Usage: Initialization
 
 ```
