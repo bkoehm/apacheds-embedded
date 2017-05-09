@@ -19,6 +19,8 @@ package software.apacheds.embedded;
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.schema.registries.DefaultSchema;
+import org.apache.directory.api.ldap.schema.loader.LdifSchemaLoader;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
@@ -231,6 +233,21 @@ public class EmbeddedLdapServer {
 
     public String getOidByAttributeName(String attrName) throws LdapException {
         return getDirectoryService().getSchemaManager().getAttributeTypeRegistry().getOidByName(attrName);
+    }
+
+    /**
+     * Add additional schemas to the directory server.
+     *
+     * @param schemaLocation The path to the directory containing the
+     *                       "ou=schema" directory for an additional schema
+     * @param schemaName     The name of the schema
+     * @return true if the schemas have been loaded and the registries is
+     * consistent
+     */
+    public boolean addSchema(File schemaLocation, String schemaName) throws LdapException, IOException {
+        LdifSchemaLoader schemaLoader = new LdifSchemaLoader(schemaLocation);
+        DefaultSchema schema = new DefaultSchema(schemaLoader, schemaName);
+        return getDirectoryService().getSchemaManager().load(schema);
     }
 
     public DirectoryService getDirectoryService() {
