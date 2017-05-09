@@ -1,7 +1,8 @@
-apacheds-embedded is an embedded LDAP Directory Server using ApacheDS 2. 
-It's primary purpose is for integration testing.  As such, it starts up with
-a blank slate and cleans up upon shutdown.  This can be disabled, so it's
-not limited to the testing use case.
+apacheds-embedded is an embedded LDAP Directory Server using [ApacheDS
+2](http://directory.apache.org/apacheds/).  It's primary purpose is for
+integration testing.  As such, it starts up with a blank slate and cleans up
+upon shutdown.  This can be disabled, so it's not limited to the testing use
+case.
 
 ## Usage: Initialization
 
@@ -32,20 +33,20 @@ some methods:
     * The default is `"dc=mydomain,dc=org"`
 * The LDAP server port:
   * Override `int getLdapServerPort()`
-    * The default is port `10389`.
+    * The default is port `10389`
 * The attribute names to index:
   * Override `List<String> getAttrNamesToIndex()`
-    * The default is `["uid"]`.
+    * The default is `["uid"]`
 * To disable deleting the ApacheDS working directory upon startup and
 shutdown:
   * Override `boolean setDeleteInstanceDirectoryOnStartup()` and `boolean
 setDeleteInstanceDirectoryOnShutdown()` to return false
-    * The default is true.
+    * The default is true
 
 ApacheDS also internally utilizes a working directory to build the directory
 server.  ApacheDS (as of 2.0.0-M23) uses the `workingDirectory` system
 property if it's set and if not, will fall back to using
-`System.getProperty( "java.io.tmpdir" ) + "/server-work-" + basePartitionName`.
+`System.getProperty("java.io.tmpdir")+"/server-work-"+basePartitionName`.
 This code can be seen in
 `DefaultDirectoryServiceFactory.buildInstanceDirectory()` in ApacheDS source
 code.
