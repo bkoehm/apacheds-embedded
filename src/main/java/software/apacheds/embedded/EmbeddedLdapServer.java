@@ -20,6 +20,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.schema.registries.DefaultSchema;
+import org.apache.directory.api.ldap.model.schema.registries.Schema;
+import org.apache.directory.api.ldap.schema.loader.JarLdifSchemaLoader;
 import org.apache.directory.api.ldap.schema.loader.LdifSchemaLoader;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
@@ -81,6 +83,10 @@ public class EmbeddedLdapServer {
 
     public List<String> getAttrNamesToIndex() {
         return ATTR_NAMES_TO_INDEX;
+    }
+
+    protected void addSchemaExtensions() throws LdapException, IOException {
+        // override to add custom attributes to the schema
     }
 
     public void init() throws Exception {
@@ -150,10 +156,6 @@ public class EmbeddedLdapServer {
         for (String attrName : getAttrNamesToIndex()) {
             getBasePartition().addIndex(createIndexObjectForAttr(attrName));
         }
-    }
-
-    protected void addSchemaExtensions() {
-        // override to add custom attributes to the schema
     }
 
     protected JdbmIndex<?> createIndexObjectForAttr(String attrName, boolean withReverse) throws LdapException {
@@ -236,7 +238,8 @@ public class EmbeddedLdapServer {
     }
 
     /**
-     * Add additional schemas to the directory server.
+     * Add additional schemas to the directory server. This takes a path to
+     * the schema directory and uses the LdifSchemaLoader.
      *
      * @param schemaLocation The path to the directory containing the
      *                       "ou=schema" directory for an additional schema
@@ -244,10 +247,32 @@ public class EmbeddedLdapServer {
      * @return true if the schemas have been loaded and the registries is
      * consistent
      */
-    public boolean addSchema(File schemaLocation, String schemaName) throws LdapException, IOException {
+    public boolean addSchemaFromPath(File schemaLocation, String schemaName) throws LdapException, IOException {
         LdifSchemaLoader schemaLoader = new LdifSchemaLoader(schemaLocation);
         DefaultSchema schema = new DefaultSchema(schemaLoader, schemaName);
         return getDirectoryService().getSchemaManager().load(schema);
+    }
+
+    /**
+     * Add additional schemas to the directory server. This uses
+     * JarLdifSchemaLoader, which will search for the "ou=schema" directory
+     * within "/schema" on the classpath. If packaging the schema as part of
+     * a jar using Gradle or Maven, you'd probably want to put your
+     * "ou=schema" directory in src/main/resources/schema.
+     * <p/>
+     * It's also required that a META-INF/apacheds-schema.index be present in
+     * your classpath that lists each LDIF file in your schema directory.
+     *
+     * @param schemaName The name of the schema
+     * @return true if the schemas have been loaded and the registries is
+     * consistent
+     */
+    public boolean addSchemaFromClasspath(String schemaName) throws LdapException, IOException {
+        // To debug if your apacheds-schema.index isn't found:
+        // Enumeration<URL> indexes = getClass().getClassLoader().getResources("META-INF/apacheds-schema.index");
+        JarLdifSchemaLoader schemaLoader = new JarLdifSchemaLoader();
+        Schema schema = schemaLoader.getSchema(schemaName);
+        return schema != null && getDirectoryService().getSchemaManager().load(schema);
     }
 
     public DirectoryService getDirectoryService() {
