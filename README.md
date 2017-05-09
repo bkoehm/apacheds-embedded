@@ -25,22 +25,22 @@ Common things you may want to change by extending the class and overriding
 some methods:
 
 * The base partition name:
-** Override `String getBasePartitionName()`
-*** The default is `"mydomain"`
+  * Override `String getBasePartitionName()`
+    * The default is `"mydomain"`
 * The base structure (i.e., the base DN of the partition):
-** Override `String getBaseStructure()`
-*** The default is `"dc=mydomain,dc=org"`
+  * Override `String getBaseStructure()`
+    * The default is `"dc=mydomain,dc=org"`
 * The LDAP server port:
-** Override `int getLdapServerPort()`
-*** The default is port `10389`.
+  * Override `int getLdapServerPort()`
+    * The default is port `10389`.
 * The attribute names to index:
-** Override `List<String> getAttrNamesToIndex()`
-*** The default is `["uid"]`.
+  * Override `List<String> getAttrNamesToIndex()`
+    * The default is `["uid"]`.
 * To disable deleting the ApacheDS working directory upon startup and
 shutdown:
-** Override `boolean setDeleteInstanceDirectoryOnStartup()` and `boolean
+  * Override `boolean setDeleteInstanceDirectoryOnStartup()` and `boolean
 setDeleteInstanceDirectoryOnShutdown()` to return false
-*** The default is true.
+    * The default is true.
 
 ApacheDS also internally utilizes a working directory to build the directory
 server.  ApacheDS (as of 2.0.0-M23) uses the `workingDirectory` system
