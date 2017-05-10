@@ -129,7 +129,7 @@ if (project.hasProperty('default_bintray_user')) {
             licenses = ['Apache-2.0']
             websiteUrl = githubWebUrl
             vcsUrl = "${githubWebUrl}.git"
-            issueTrackerUrl = '${githubWebUrl}/issues'
+            issueTrackerUrl = "${githubWebUrl}/issues"
             githubRepo = githubRepo
             version {
                 name = project.version
