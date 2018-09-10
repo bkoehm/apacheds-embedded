@@ -43,8 +43,10 @@ some methods:
     * The default is `["uid"]`
 * To disable deleting the ApacheDS working directory upon startup and
 shutdown:
-  * Override `boolean setDeleteInstanceDirectoryOnStartup()` and `boolean
-setDeleteInstanceDirectoryOnShutdown()` to return false
+  * Call `setDeleteInstanceDirectoryOnStartup(false)` and
+    `setDeleteInstanceDirectoryOnShutdown(false)` or alternatively, override
+    `boolean getDeleteInstanceDirectoryOnStartup()` and `boolean
+    getDeleteInstanceDirectoryOnShutdown()` to return false
     * The default is true
 
 ApacheDS also internally utilizes a working directory to build the directory
@@ -60,3 +62,19 @@ To change this location, set the `workingDirectory` system property.
 This working directory gets deleted upon startup and shutdown by default to
 support testing unless methods in `EmbeddedLdapServer` are overridden, as
 described earlier.
+
+The default credentials are described in 
+[ApacheDS Basic User Guide - Changing the admin password](http://directory.apache.org/apacheds/basic-user-guide.html):
+* DN: `uid=admin,ou=system`
+* Password: `secret`
+
+## Example query with OpenLDAP client
+
+```
+ldapsearch -x -w secret \
+  -D uid=admin,ou=system \
+  -b ou=system \
+  -LLL -o ldif-wrap=no \
+  -H ldap://localhost:10389 \
+  "(objectClass=*)"
+```
