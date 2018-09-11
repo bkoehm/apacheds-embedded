@@ -29,7 +29,7 @@ buildscript {
     }
 
     dependencies {
-        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3"
+        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4"
     }
 }
 
@@ -68,18 +68,18 @@ task javadocJar (type: Jar, dependsOn: javadoc) {
 }
 
 dependencies {
-    compile("org.apache.directory.server:apacheds-all:2.0.0-M23") {
+    compile("org.apache.directory.server:apacheds-all:2.0.0-M24") {
         exclude group: "org.apache.directory.shared", module: "shared-ldap-schema"
     }
     
-    compile "commons-io:commons-io:2.5"
+    compile "commons-io:commons-io:2.6"
 
-    testCompile "org.codehaus.groovy:groovy-all:2.4.11"
-    testCompile 'org.spockframework:spock-core:1.0-groovy-2.4'
+    testCompile "org.codehaus.groovy:groovy-all:2.4.15"
+    testCompile 'org.spockframework:spock-core:1.1-groovy-2.4'
     testCompile 'junit:junit:4.12'
     testCompile "org.slf4j:slf4j-api:1.7.25"
-    testRuntime "org.apache.logging.log4j:log4j-core:2.8.2"
-    testRuntime "org.apache.logging.log4j:log4j-slf4j-impl:2.8.2"
+    testRuntime "org.apache.logging.log4j:log4j-core:2.11.1"
+    testRuntime "org.apache.logging.log4j:log4j-slf4j-impl:2.11.1"
 }
 
 publishing {
