@@ -62,16 +62,47 @@ task sourceJar(type: Jar) {
     from { ["LICENSE", "NOTICE"] }
 }
 
-task javadocJar (type: Jar, dependsOn: javadoc) {
+task javadocJar(type: Jar, dependsOn: javadoc) {
     from javadoc.destinationDir
     from { ["LICENSE", "NOTICE"] }
 }
 
 dependencies {
-    compile("org.apache.directory.server:apacheds-all:2.0.0-M24") {
-        exclude group: "org.apache.directory.shared", module: "shared-ldap-schema"
-    }
-    
+    /**
+     * These dependencies are cobbled together using apacheds-service and
+     * apacheds-service-builder POMs as the guide.  Want to stay away from
+     * the monolithic JARs of packages like apacheds-all and
+     * apacheds-service, which package a bunch of different libraries into
+     * one JAR, which does a real good job of breaking dependency management
+     * (and Java9+ modularity) in apps that depend on apacheds-embedded.
+     */
+    def apacheDsVersion = "2.0.0-M24"
+    // This is org.apache.directory.api.version from top-level
+    // directory-server/pom.xml.
+    def apacheDirApiVersion = "1.0.0"
+    compile group: "org.apache.directory.api", name: "api-ldap-codec-standalone", version: apacheDirApiVersion
+    compile group: "org.apache.directory.api", name: "api-ldap-model", version: apacheDirApiVersion
+    compile group: "org.apache.directory.api", name: "api-ldap-schema-data", version: apacheDirApiVersion
+    compile group: "org.apache.directory.api", name: "api-util", version: apacheDirApiVersion
+    compile group: "org.apache.directory.server", name: "apacheds-core-annotations", version: apacheDsVersion
+    compile group: "org.apache.directory.server", name: "apacheds-core-api", version: apacheDsVersion
+    compile group: "org.apache.directory.server", name: "apacheds-core", version: apacheDsVersion
+    compile group: "org.apache.directory.server", name: "apacheds-i18n", version: apacheDsVersion
+    compile group: "org.apache.directory.server", name: "apacheds-interceptors-hash", version: apacheDsVersion
+    compile group: "org.apache.directory.server", name: "apacheds-jdbm-partition", version: apacheDsVersion
+    compile group: "org.apache.directory.server", name: "apacheds-kerberos-codec", version: apacheDsVersion
+    compile group: "org.apache.directory.server", name: "apacheds-ldif-partition", version: apacheDsVersion
+    compile group: "org.apache.directory.server", name: "apacheds-protocol-dhcp", version: apacheDsVersion
+    compile group: "org.apache.directory.server", name: "apacheds-protocol-dns", version: apacheDsVersion
+    compile group: "org.apache.directory.server", name: "apacheds-protocol-kerberos", version: apacheDsVersion
+    compile group: "org.apache.directory.server", name: "apacheds-protocol-ldap", version: apacheDsVersion
+    compile group: "org.apache.directory.server", name: "apacheds-protocol-ntp", version: apacheDsVersion
+    compile group: "org.apache.directory.server", name: "apacheds-protocol-shared", version: apacheDsVersion
+    compile group: "org.apache.directory.server", name: "apacheds-server-config", version: apacheDsVersion
+    compile group: "org.apache.directory.server", name: "apacheds-xdbm-partition", version: apacheDsVersion
+    compile group: "org.apache.directory.server", name: "apacheds-mavibot-partition", version: apacheDsVersion
+    compile group: "org.apache.directory.server", name: "apacheds-interceptor-kerberos", version: apacheDsVersion
+
     compile "commons-io:commons-io:2.6"
 
     testCompile "org.codehaus.groovy:groovy-all:2.4.15"
