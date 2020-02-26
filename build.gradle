@@ -1,14 +1,3 @@
-version projectVersion
-group projectGroup
-
-apply plugin: "java-library"
-apply plugin: "groovy"
-apply plugin: "maven-publish"
-apply plugin: "com.jfrog.bintray"
-
-sourceCompatibility = jdkCompatibilityVersion
-targetCompatibility = jdkCompatibilityVersion
-
 buildscript {
     repositories {
         mavenLocal()
@@ -27,12 +16,20 @@ buildscript {
         jcenter()
         mavenCentral()
     }
-
-    dependencies {
-        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4"
-    }
 }
 
+plugins {
+    id "java-library"
+    id "groovy"
+    id "maven-publish"
+    id "com.jfrog.bintray" version "1.8.4"
+}
+
+version projectVersion
+group projectGroup
+
+sourceCompatibility = jdkCompatibilityVersion
+targetCompatibility = jdkCompatibilityVersion
 
 repositories {
     mavenLocal()
@@ -52,7 +49,6 @@ repositories {
     mavenCentral()
 }
 
-
 jar {
     from { ["LICENSE", "NOTICE"] }
 }
@@ -69,48 +65,32 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 
 dependencies {
     /**
-     * These dependencies are cobbled together using apacheds-service and
-     * apacheds-service-builder POMs as the guide.  Want to stay away from
-     * the monolithic JARs of packages like apacheds-all and
-     * apacheds-service, which package a bunch of different libraries into
-     * one JAR, which does a real good job of breaking dependency management
-     * (and Java9+ modularity) in apps that depend on apacheds-embedded.
+     * These dependencies are cobbled together using the top-level ApacheDS
+     * source code pom.xml and service/pom.xml.  Want to stay away from the
+     * monolithic JARs of packages like apacheds-all and apacheds-service,
+     * which package a bunch of different libraries into one JAR, which does
+     * a real good job of breaking dependency management (and Java9+
+     * modularity) in apps that depend on apacheds-embedded.
      */
-    def apacheDsVersion = "2.0.0-M24"
-    // This is org.apache.directory.api.version from top-level
-    // directory-server/pom.xml.
-    def apacheDirApiVersion = "1.0.0"
-    compile group: "org.apache.directory.api", name: "api-ldap-codec-standalone", version: apacheDirApiVersion
-    compile group: "org.apache.directory.api", name: "api-ldap-model", version: apacheDirApiVersion
-    compile group: "org.apache.directory.api", name: "api-ldap-schema-data", version: apacheDirApiVersion
-    compile group: "org.apache.directory.api", name: "api-util", version: apacheDirApiVersion
-    compile group: "org.apache.directory.server", name: "apacheds-core-annotations", version: apacheDsVersion
-    compile group: "org.apache.directory.server", name: "apacheds-core-api", version: apacheDsVersion
-    compile group: "org.apache.directory.server", name: "apacheds-core", version: apacheDsVersion
-    compile group: "org.apache.directory.server", name: "apacheds-i18n", version: apacheDsVersion
-    compile group: "org.apache.directory.server", name: "apacheds-interceptors-hash", version: apacheDsVersion
-    compile group: "org.apache.directory.server", name: "apacheds-jdbm-partition", version: apacheDsVersion
-    compile group: "org.apache.directory.server", name: "apacheds-kerberos-codec", version: apacheDsVersion
-    compile group: "org.apache.directory.server", name: "apacheds-ldif-partition", version: apacheDsVersion
-    compile group: "org.apache.directory.server", name: "apacheds-protocol-dhcp", version: apacheDsVersion
-    compile group: "org.apache.directory.server", name: "apacheds-protocol-dns", version: apacheDsVersion
-    compile group: "org.apache.directory.server", name: "apacheds-protocol-kerberos", version: apacheDsVersion
-    compile group: "org.apache.directory.server", name: "apacheds-protocol-ldap", version: apacheDsVersion
-    compile group: "org.apache.directory.server", name: "apacheds-protocol-ntp", version: apacheDsVersion
-    compile group: "org.apache.directory.server", name: "apacheds-protocol-shared", version: apacheDsVersion
-    compile group: "org.apache.directory.server", name: "apacheds-server-config", version: apacheDsVersion
-    compile group: "org.apache.directory.server", name: "apacheds-xdbm-partition", version: apacheDsVersion
-    compile group: "org.apache.directory.server", name: "apacheds-mavibot-partition", version: apacheDsVersion
-    compile group: "org.apache.directory.server", name: "apacheds-interceptor-kerberos", version: apacheDsVersion
+    def apacheDsVersion = "2.0.0.AM25"
+    // This is org.apache.directory.api.version from top-level pom.xml.
+    def apacheDirApiVersion = "2.0.0.AM1"
+    // From service/pom.xml
+    api group: "org.apache.directory.server", name: "apacheds-core-annotations", version: apacheDsVersion
+    api group: "org.apache.directory.server", name: "apacheds-core-api", version: apacheDsVersion
+    api group: "org.apache.directory.server", name: "apacheds-service-builder", version: apacheDsVersion
+    api group: "org.apache.directory.api", name: "api-ldap-codec-standalone", version: apacheDirApiVersion
+    api group: "org.apache.directory.api", name: "api-ldap-model", version: apacheDirApiVersion
+    api group: "org.apache.directory.api", name: "api-ldap-schema-data", version: apacheDirApiVersion
+    api group: "org.apache.directory.api", name: "api-util", version: apacheDirApiVersion
 
-    compile "commons-io:commons-io:2.6"
+    implementation "commons-io:commons-io:2.6"
 
-    testCompile "org.codehaus.groovy:groovy-all:2.4.15"
-    testCompile 'org.spockframework:spock-core:1.1-groovy-2.4'
-    testCompile 'junit:junit:4.12'
-    testCompile "org.slf4j:slf4j-api:1.7.25"
-    testRuntime "org.apache.logging.log4j:log4j-core:2.11.1"
-    testRuntime "org.apache.logging.log4j:log4j-slf4j-impl:2.11.1"
+    testImplementation "org.codehaus.groovy:groovy-all:2.5.9"
+    testImplementation "org.spockframework:spock-core:1.3-groovy-2.5"
+    testImplementation "org.slf4j:slf4j-api:1.7.30"
+    testRuntimeOnly "org.apache.logging.log4j:log4j-core:2.13.0"
+    testRuntimeOnly "org.apache.logging.log4j:log4j-slf4j-impl:2.13.0"
 }
 
 publishing {
