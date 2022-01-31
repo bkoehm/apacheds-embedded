@@ -109,6 +109,12 @@ publishing {
                     issueManagement {
                         url "${githubWebUrl}/issues"
                     }
+                    developers {
+                        developer {
+                            id 'bkoehm'
+                            name 'Brian Koehmstedt'
+                        }
+                    }
                 }
             }
         }
