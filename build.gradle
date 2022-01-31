@@ -1,28 +1,8 @@
-buildscript {
-    repositories {
-        mavenLocal()
-        // If using a Maven proxy, put the property settings in
-        // ~/.gradle/gradle.properties for default_proxy_url,
-        // default_proxy_username and default_proxy_password.
-        if (project.hasProperty("default_proxy_url")) {
-            maven {
-                url project.property("default_proxy_url")
-                credentials {
-                    username project.property("default_proxy_username")
-                    password project.property("default_proxy_password")
-                }
-            }
-        }
-        jcenter()
-        mavenCentral()
-    }
-}
-
 plugins {
     id "java-library"
     id "groovy"
     id "maven-publish"
-    id "com.jfrog.bintray" version "1.8.4"
+    id "signing"
 }
 
 version projectVersion
@@ -45,7 +25,6 @@ repositories {
             }
         }
     }
-    jcenter()
     mavenCentral()
 }
 
@@ -56,11 +35,17 @@ jar {
 task sourceJar(type: Jar) {
     from sourceSets.main.allJava
     from { ["LICENSE", "NOTICE"] }
+    archiveClassifier = "sources"
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
     from javadoc.destinationDir
     from { ["LICENSE", "NOTICE"] }
+    archiveClassifier = "javadoc"
+}
+
+artifacts {
+    archives jar, javadocJar, sourceJar
 }
 
 dependencies {
@@ -68,13 +53,11 @@ dependencies {
      * These dependencies are cobbled together using the top-level ApacheDS
      * source code pom.xml and service/pom.xml.  Want to stay away from the
      * monolithic JARs of packages like apacheds-all and apacheds-service,
-     * which package a bunch of different libraries into one JAR, which does
-     * a real good job of breaking dependency management (and Java9+
-     * modularity) in apps that depend on apacheds-embedded.
+     * which package a bunch of different libraries into one JAR.
      */
-    def apacheDsVersion = "2.0.0.AM25"
+    def apacheDsVersion = "2.0.0.AM26"
     // This is org.apache.directory.api.version from top-level pom.xml.
-    def apacheDirApiVersion = "2.0.0.AM1"
+    def apacheDirApiVersion = "2.0.0"
     // From service/pom.xml
     api group: "org.apache.directory.server", name: "apacheds-core-annotations", version: apacheDsVersion
     api group: "org.apache.directory.server", name: "apacheds-core-api", version: apacheDsVersion
@@ -84,21 +67,26 @@ dependencies {
     api group: "org.apache.directory.api", name: "api-ldap-schema-data", version: apacheDirApiVersion
     api group: "org.apache.directory.api", name: "api-util", version: apacheDirApiVersion
 
-    implementation "commons-io:commons-io:2.6"
+    implementation "commons-io:commons-io:2.11.0"
 
-    testImplementation "org.codehaus.groovy:groovy-all:2.5.9"
+    testImplementation "org.codehaus.groovy:groovy-all:2.5.15"
     testImplementation "org.spockframework:spock-core:1.3-groovy-2.5"
-    testImplementation "org.slf4j:slf4j-api:1.7.32"
+    testImplementation "org.slf4j:slf4j-api:1.7.35"
     testRuntimeOnly "org.apache.logging.log4j:log4j-core:2.17.1"
-    testRuntimeOnly "org.apache.logging.log4j:log4j-slf4j-impl:2.16.0"
+    testRuntimeOnly "org.apache.logging.log4j:log4j-slf4j-impl:2.17.1"
+}
+
+signing {
+    useGpgCmd()
+    sign publishing.publications
 }
 
 publishing {
     publications {
         mavenJava(MavenPublication) {
             from components.java
-            artifact sourceJar { classifier "sources" }
-            artifact javadocJar { classifier "javadoc" }
+            artifact sourceJar
+            artifact javadocJar
             pom.withXml {
                 asNode().children().last() + {
                     resolveStrategy = Closure.DELEGATE_FIRST
@@ -109,6 +97,7 @@ publishing {
                         url githubWebUrl
                         connection "scm:git:${githubWebUrl}.git"
                         developerConnection "scm:git:${githubWebUrl}.git"
+                        tag "v${project.version}"
                     }
                     licenses {
                         license {
@@ -117,36 +106,20 @@ publishing {
                             distribution 'repo'
                         }
                     }
+                    issueManagement {
+                        url "${githubWebUrl}/issues"
+                    }
                 }
             }
         }
     }
-}
-
-if (project.hasProperty('default_bintray_user')) {
-    // deploy with: gradle bintrayUpload
-    bintray {
-        // put in ~/.gradle/gradle.properties
-        user = project.property('default_bintray_user')
-        key = project.property('default_bintray_api_key')
-        publications = ['mavenJava']
-
-        //dryRun = true
-
-        pkg {
-            repo = 'maven'
-            name = projectName
-            desc = projectDescription
-            licenses = ['Apache-2.0']
-            websiteUrl = githubWebUrl
-            vcsUrl = "${githubWebUrl}.git"
-            issueTrackerUrl = "${githubWebUrl}/issues"
-            githubRepo = githubRepo
-            version {
-                name = project.version
-                desc = "${projectName} v${project.version} - ${projectDescription}"
-                released = new Date()
-                vcsTag = "v${project.version}"
+    repositories {
+        maven {
+            name = "OSSRH"
+            url project.property("default_ossrh_url")
+            credentials {
+                username project.property("default_ossrh_username")
+                password project.property("default_ossrh_password")
             }
         }
     }
