@@ -14,7 +14,7 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-package software.apacheds.embedded
+package io.github.bkoehm.apacheds.embedded
 
 import spock.lang.Shared
 import spock.lang.Specification
