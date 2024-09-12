@@ -8,14 +8,32 @@ case.
 
 [Apache License, Version 2.0](LICENSE)
 
-## Usage: Initialization
+## Usage
+
+### Gradle Dependency
+
+```
+implementation 'io.github.bkoehm:apacheds-embedded:0.6'
+```
+
+### Maven Dependency
+
+```
+<dependency>
+    <groupId>io.github.bkoehm</groupId>
+    <artifactId>apacheds-embedded</artifactId>
+    <version>0.6</version>
+</dependency>
+```
+
+### Initialization
 
 ```
 EmbeddedLdapServer embeddedLdapServer = new EmbeddedLdapServer()
 embeddedLdapServer.init()
 ```
 
-## Usage: Shutdown
+### Shutdown
 
 ```
 embeddedLdapServer.destroy()
